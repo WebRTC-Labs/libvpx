@@ -81,9 +81,9 @@ void vp8_dequantize_b_cl(BLOCKD *d, short *DQC)
     /* Set kernel arguments */
     err = 0;
     err = clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 0, sizeof (cl_mem), &d->cl_dqcoeff_mem);
-    err |= clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 1, sizeof (cl_int), &d->dqcoeff_offset);
+    err |= clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 1, sizeof (cl_int), &d->offset);
     err |= clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 2, sizeof (cl_mem), &d->cl_qcoeff_mem);
-    err |= clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 3, sizeof (cl_int), &d->qcoeff_offset);
+    err |= clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 3, sizeof (cl_int), &d->offset);
     err |= clSetKernelArg(cl_data.vp8_dequantize_b_kernel, 4, sizeof (cl_mem), &d->cl_dequant_mem);
     VP8_CL_CHECK_SUCCESS( d->cl_commands, err != CL_SUCCESS,
         "Error: Failed to set kernel arguments!\n",
@@ -128,7 +128,7 @@ void vp8_dequant_idct_add_cl(BLOCKD *b, unsigned char *dest_base, cl_mem dest_me
     err |= clSetKernelArg(cl_data.vp8_dequant_idct_add_kernel, 8, sizeof (int), &stride);
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to set kernel arguments!\n",
-        vp8_dequant_idct_add(b->qcoeff_base+q_offset, b->dequant,
+        vp8_dequant_idct_add(b->qcoeff+q_offset, b->dequant,
             dest_base + dest_offset, stride),
     );
 
@@ -137,7 +137,7 @@ void vp8_dequant_idct_add_cl(BLOCKD *b, unsigned char *dest_base, cl_mem dest_me
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to execute kernel!\n",
         printf("err = %d\n",err);\
-        vp8_dequant_idct_add(b->qcoeff_base+q_offset, b->dequant,
+        vp8_dequant_idct_add(b->qcoeff+q_offset, b->dequant,
             dest_base + dest_offset, stride),
     );
 
@@ -146,7 +146,7 @@ void vp8_dequant_idct_add_cl(BLOCKD *b, unsigned char *dest_base, cl_mem dest_me
         err = clEnqueueReadBuffer(b->cl_commands, dest_mem, CL_FALSE, 0, dst_size, dest_base, 0, NULL, NULL);
         VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
             "Error: Failed to read output array!\n",
-            vp8_dequant_idct_add(b->qcoeff_base+q_offset, b->dequant,
+            vp8_dequant_idct_add(b->qcoeff+q_offset, b->dequant,
 				dest_base + dest_offset, stride),
         );
 

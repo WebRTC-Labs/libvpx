@@ -25,7 +25,7 @@ void cl_destroy_idct(){
         clReleaseProgram(cl_data.idct_program);
 
     cl_data.idct_program = NULL;
-    
+
     VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_1_kernel);
     VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_1st_pass_kernel);
     VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_2nd_pass_kernel);
@@ -59,13 +59,13 @@ int cl_init_idct() {
 #define max(x,y) (x > y ? x: y)
 //#define NO_CL
 
-void vp8_dc_only_idct_add_cl(BLOCKD *b, cl_int use_diff, int diff_offset, 
+void vp8_dc_only_idct_add_cl(BLOCKD *b, cl_int use_diff, int diff_offset,
         int qcoeff_offset, int pred_offset,
         unsigned char *dst_base, cl_mem dst_mem, int dst_offset, size_t dest_size,
         int pitch, int stride
 )
 {
-    
+
     int err;
     size_t global = 16;
 
@@ -123,8 +123,8 @@ void vp8_short_inv_walsh4x4_cl(BLOCKD *b)
     size_t global = 4;
 
     if (cl_initialized != CL_SUCCESS){
-        vp8_short_inv_walsh4x4_c(&b->dqcoeff_base[b->dqcoeff_offset],
-                    b->dqcoeff_base);
+        vp8_short_inv_walsh4x4_c(&b->qcoeff[b->offset],
+                    b->qcoeff);
         return;
     }
 
@@ -132,11 +132,11 @@ void vp8_short_inv_walsh4x4_cl(BLOCKD *b)
     err = 0;
 	printf("I'm going to fail now... blockd.diff_mem doesn't exist anymore... rewrite this kernel");
     err = clSetKernelArg(cl_data.vp8_short_inv_walsh4x4_1st_pass_kernel, 0, sizeof (cl_mem), &b->cl_dqcoeff_mem);
-    err |= clSetKernelArg(cl_data.vp8_short_inv_walsh4x4_1st_pass_kernel, 1, sizeof(int), &b->dqcoeff_offset);
+    err |= clSetKernelArg(cl_data.vp8_short_inv_walsh4x4_1st_pass_kernel, 1, sizeof(int), &b->offset);
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to set kernel arguments!\n",
-                vp8_short_inv_walsh4x4_c(&b->dqcoeff_base[b->dqcoeff_offset],
-                    b->dqcoeff_base),
+                vp8_short_inv_walsh4x4_c(&b->qcoeff[b->offset],
+                    b->qcoeff),
     );
 
     /* Execute the kernel */
@@ -144,8 +144,8 @@ void vp8_short_inv_walsh4x4_cl(BLOCKD *b)
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to execute kernel!\n",
         printf("err = %d\n",err);
-		vp8_short_inv_walsh4x4_c(&b->dqcoeff_base[b->dqcoeff_offset],
-				b->dqcoeff_base),
+		vp8_short_inv_walsh4x4_c(&b->qcoeff[b->offset],
+				b->qcoeff),
     );
 
     //Second pass
@@ -154,8 +154,8 @@ void vp8_short_inv_walsh4x4_cl(BLOCKD *b)
 	printf("Does the 2 pass kernel even make sense anymore?");
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to set kernel arguments!\n",
-		vp8_short_inv_walsh4x4_c(&b->dqcoeff_base[b->dqcoeff_offset],
-			b->dqcoeff_base),
+		vp8_short_inv_walsh4x4_c(&b->qcoeff[b->offset],
+			b->qcoeff),
     );
 
     /* Execute the kernel */
@@ -163,8 +163,8 @@ void vp8_short_inv_walsh4x4_cl(BLOCKD *b)
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to execute kernel!\n",
         printf("err = %d\n",err);
-		vp8_short_inv_walsh4x4_c(&b->dqcoeff_base[b->dqcoeff_offset],
-			b->dqcoeff_base),
+		vp8_short_inv_walsh4x4_c(&b->qcoeff[b->offset],
+			b->qcoeff),
     );
 
     return;
@@ -172,25 +172,25 @@ void vp8_short_inv_walsh4x4_cl(BLOCKD *b)
 
 void vp8_short_inv_walsh4x4_1_cl(BLOCKD *b)
 {
-    
+
     int err;
     size_t global = 4;
 
     if (cl_initialized != CL_SUCCESS){
-        vp8_short_inv_walsh4x4_1_c(b->dqcoeff_base + b->dqcoeff_offset,
-            b->dqcoeff_base);
+        vp8_short_inv_walsh4x4_1_c(b->qcoeff + b->offset,
+            b->qcoeff);
         return;
     }
 
     //Set arguments and run kernel
     err = 0;
     err = clSetKernelArg(cl_data.vp8_short_inv_walsh4x4_1_kernel, 0, sizeof (cl_mem), &b->cl_dqcoeff_mem);
-    err |= clSetKernelArg(cl_data.vp8_short_inv_walsh4x4_1_kernel, 1, sizeof (int), &b->dqcoeff_offset);
+    err |= clSetKernelArg(cl_data.vp8_short_inv_walsh4x4_1_kernel, 1, sizeof (int), &b->offset);
 	printf("I'm going to fail now... blockd.diff_mem doesn't exist anymore... rewrite this kernel");
 	VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to set kernel arguments!\n",
-        vp8_short_inv_walsh4x4_1_c(&b->dqcoeff_base[b->dqcoeff_offset],
-			b->dqcoeff_base),
+        vp8_short_inv_walsh4x4_1_c(&b->qcoeff[b->offset],
+			b->qcoeff),
     );
 
     /* Execute the kernel */
@@ -198,8 +198,8 @@ void vp8_short_inv_walsh4x4_1_cl(BLOCKD *b)
     VP8_CL_CHECK_SUCCESS( b->cl_commands, err != CL_SUCCESS,
         "Error: Failed to execute kernel!\n",
         printf("err = %d\n",err);
-        vp8_short_inv_walsh4x4_1_c(&b->dqcoeff_base[b->dqcoeff_offset],
-			b->dqcoeff_base),
+        vp8_short_inv_walsh4x4_1_c(&b->qcoeff[b->offset],
+			b->qcoeff),
     );
 
     return;

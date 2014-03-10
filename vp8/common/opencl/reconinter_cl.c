@@ -30,6 +30,8 @@
 
 #include <stdio.h>
 
+#if 0
+
 /* use this define on systems where unaligned int reads and writes are
  * not allowed, i.e. ARM architectures
  */
@@ -444,7 +446,7 @@ static void vp8_build_inter_predictors_b_s_cl(MACROBLOCKD *x, BLOCKD *d, int dst
         sppf = vp8_sixtap_predict4x4_cl;
     } else
         sppf = vp8_bilinear_predict4x4_cl;
-        
+
     if ( (d->bmi.mv.as_mv.row | d->bmi.mv.as_mv.col) & 7)
     {
         sppf(d->cl_commands, ptr_base, pre_mem, pre_dist+ptr_offset, pre_stride, d->bmi.mv.as_mv.col & 7, d->bmi.mv.as_mv.row & 7, NULL, dst_mem, dst_offset, dst_stride);
@@ -544,7 +546,7 @@ void vp8_build_inter_predictors_mb_s_cl(MACROBLOCKD *x)
                 {
                     unsigned char *ptr_base = *(d->base_pre);
                     int pre_off = ptr_base - x->pre.buffer_alloc;
-                    
+
                     int ptr_offset = d->pre + (d->bmi.mv.as_mv.row >> 3) * d->pre_stride + (d->bmi.mv.as_mv.col >> 3);
 
                     pre_off += ptr_offset;
@@ -645,3 +647,4 @@ void vp8_build_inter_predictors_mb_s_cl(MACROBLOCKD *x)
 
     vp8_cl_mb_finish(x, DST_BUF);
 }
+#endif
