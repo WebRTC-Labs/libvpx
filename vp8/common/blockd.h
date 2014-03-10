@@ -20,6 +20,10 @@ void vpx_log(const char *format, ...);
 #include "treecoder.h"
 #include "vpx_ports/mem.h"
 
+#if CONFIG_OPENCL
+#include "opencl/vp8_opencl.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -200,6 +204,20 @@ typedef struct blockd
     unsigned char  *predictor;
     short *dequant;
 
+#if CONFIG_OPENCL
+    cl_command_queue cl_commands; //pointer to macroblock CL command queue
+
+    cl_mem cl_predictor_mem;
+    cl_mem cl_qcoeff_mem;
+    cl_mem cl_dqcoeff_mem;
+    cl_mem cl_eobs_mem;
+
+    cl_mem cl_dequant_mem; //Block-specific, not shared
+
+    cl_bool sixtap_filter; //Subpixel Prediction type (true=sixtap, false=bilinear)
+
+#endif
+
     int offset;
     char *eob;
 
@@ -219,6 +237,16 @@ typedef struct macroblockd
     DECLARE_ALIGNED(16, short,  dequant_y1_dc[16]);
     DECLARE_ALIGNED(16, short,  dequant_y2[16]);
     DECLARE_ALIGNED(16, short,  dequant_uv[16]);
+
+#if CONFIG_OPENCL
+    cl_command_queue cl_commands; //Each macroblock gets its own command queue.
+    cl_mem cl_predictor_mem;
+    cl_mem cl_qcoeff_mem;
+    cl_mem cl_dqcoeff_mem;
+    cl_mem cl_eobs_mem;
+
+    cl_bool sixtap_filter;
+#endif
 
     /* 16 Y blocks, 4 U, 4 V, 1 DC 2nd order block, each with 16 entries. */
     BLOCKD block[25];

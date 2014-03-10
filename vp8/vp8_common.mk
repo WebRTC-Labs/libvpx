@@ -188,5 +188,38 @@ VP8_COMMON_SRCS-$(HAVE_NEON)  += common/arm/neon/dc_only_idct_add_neon.c
 VP8_COMMON_SRCS-$(HAVE_NEON)  += common/arm/neon/dequant_idct_neon.c
 VP8_COMMON_SRCS-$(HAVE_NEON)  += common/arm/neon/dequantizeb_neon.c
 
+#Append OpenCL source files to source listing if needed
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/vp8_opencl.c
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/vp8_opencl.h
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/blockd_cl.h
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/blockd_cl.c
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/filter_cl.h
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/filter_cl.c
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/filter_cl.cl
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/subpixel_cl.h
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/reconinter_cl.h
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/reconinter_cl.c
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/dequantize_cl.c
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/dequantize_cl.h
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/dequantize_cl.cl
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/idctllm_cl.h
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/idctllm_cl.c
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/idctllm_cl.cl
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/idct_cl.h
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/loopfilter_cl.h
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/loopfilter_cl.c
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/loopfilter_cl.cl
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/loopfilter_filters_cl.c
+
+
+VP8_COMMON_SRCS-$(CONFIG_OPENCL) += common/opencl/opencl_systemdependent.c
+VP8_COMMON_SRCS-$(HAVE_DLOPEN) += common/opencl/dynamic_cl.c
+VP8_COMMON_SRCS-$(HAVE_DLOPEN) += common/opencl/dynamic_cl.h
 
 $(eval $(call rtcd_h_template,vp8_rtcd,vp8/common/rtcd_defs.pl))

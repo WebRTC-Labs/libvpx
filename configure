@@ -48,6 +48,8 @@ Advanced options:
   ${toggle_shared}                shared library support
   ${toggle_static}                static library support
   ${toggle_small}                 favor smaller size over speed
+  ${toggle_opencl}                support for OpenCL-assisted VP8 decoding (experimental)
+  --opencl_ld_override=LDFLAGS     Override OpenCL library name and flags (default = -lOpenCL)
   ${toggle_postproc_visualizer}   macro block / block level visualizers
   ${toggle_multi_res_encoding}    enable multiple-resolution encoding
   ${toggle_temporal_denoising}    enable temporal denoising and disable the spatial denoiser
@@ -303,6 +305,7 @@ CONFIG_LIST="
     shared
     static
     small
+    opencl
     postproc_visualizer
     os_support
     unit_tests
@@ -357,6 +360,8 @@ CMDLINE_SELECT="
     shared
     static
     small
+    opencl
+    opencl_ld_override
     postproc_visualizer
     unit_tests
     decode_perf_tests
