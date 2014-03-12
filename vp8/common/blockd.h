@@ -224,7 +224,8 @@ typedef struct blockd
     union b_mode_info bmi;
 } BLOCKD;
 
-typedef void (*vp8_subpix_fn_t)(unsigned char *src, int src_pitch, int xofst, int yofst, unsigned char *dst, int dst_pitch);
+typedef void (*vp8_subpix_fn_t)(unsigned char *src, int src_pitch, int xofst,
+                                int yofst, unsigned char *dst, int dst_pitch);
 
 typedef struct macroblockd
 {
