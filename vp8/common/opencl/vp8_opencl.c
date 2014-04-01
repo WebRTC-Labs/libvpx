@@ -108,6 +108,8 @@ int cl_common_init() {
   cl_uint num_found, num_devices;
   cl_device_id devices[MAX_NUM_DEVICES];
 
+  fprintf(stderr, "Miguelaaao\n");
+
   //Don't allow multiple CL contexts..
   if (cl_initialized != VP8_CL_NOT_INITIALIZED)
     return cl_initialized;
@@ -240,6 +242,7 @@ int cl_common_init() {
 //Allocates and returns the full file path for the requested file
 char *cl_get_file_path(const char* file_name, char *ext){
   char *fullpath;
+  char* vpx_codec_lib_dir = "/usr/local/lib";
   FILE *f;
 
   fullpath = malloc(strlen(file_name) + strlen(ext) + 1);
@@ -258,12 +261,12 @@ char *cl_get_file_path(const char* file_name, char *ext){
 
   free(fullpath);
 
-    //Generate a file path for the CL sources using the library install dir
-  fullpath = malloc(strlen(vpx_codec_lib_dir()) + strlen(file_name) + strlen(ext) + 2);
+  //Generate a file path for the CL sources using the library install dir
+  fullpath = malloc(strlen(vpx_codec_lib_dir) + strlen(file_name) + strlen(ext) + 2);
   if (fullpath == NULL) {
     return NULL;
   }
-  strcpy(fullpath, vpx_codec_lib_dir());
+  strcpy(fullpath, vpx_codec_lib_dir);
   strcat(fullpath, "/"); //Will need to be changed for MSVS
   strcat(fullpath, file_name);
   strcat(fullpath, ext);

@@ -192,6 +192,7 @@ void *vpx_realloc(void *memblk, size_t size) {
 void vpx_free(void *memblk) {
   if (memblk) {
     void *addr = (void *)(((size_t *)memblk)[-1]);
+    printf(" Miguelao!! 0x%x\n", addr);
 #if CONFIG_MEM_MANAGER
     hmm_free(&hmm_d, addr);
 #else

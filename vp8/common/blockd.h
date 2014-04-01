@@ -215,7 +215,6 @@ typedef struct blockd
     cl_mem cl_dequant_mem; //Block-specific, not shared
 
     cl_bool sixtap_filter; //Subpixel Prediction type (true=sixtap, false=bilinear)
-
 #endif
 
     int offset;

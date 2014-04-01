@@ -202,6 +202,7 @@ INSTALL-LIBS-yes += $(LIBSUBDIR)/vp8/common/opencl/loopfilter.cl
 ifeq ($(CONFIG_VP8_DECODER),yes)
 INSTALL-LIBS-yes += $(LIBSUBDIR)/vp8/decoder/opencl/dequantize_cl.cl
 endif
+OPENCL_LIBS = -L /usr/lib -lOpenCL
 endif
 endif
 
@@ -300,7 +301,7 @@ endif
 LIBS-$(BUILD_LIBVPX_SO) += $(BUILD_PFX)$(LIBVPX_SO)\
                            $(notdir $(LIBVPX_SO_SYMLINKS))
 $(BUILD_PFX)$(LIBVPX_SO): $(LIBVPX_OBJS) $(EXPORT_FILE)
-$(BUILD_PFX)$(LIBVPX_SO): extralibs += -lm
+$(BUILD_PFX)$(LIBVPX_SO): extralibs += -lm $(OPENCL_LIBS)
 $(BUILD_PFX)$(LIBVPX_SO): SONAME = libvpx.so.$(VERSION_MAJOR)
 $(BUILD_PFX)$(LIBVPX_SO): EXPORTS_FILE = $(EXPORT_FILE)
 
@@ -349,11 +350,11 @@ vpx.pc: config.mk libs.mk
 	$(qexec)echo 'Version: $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)' >> $@
 	$(qexec)echo 'Requires:' >> $@
 	$(qexec)echo 'Conflicts:' >> $@
-	$(qexec)echo 'Libs: -L$${libdir} -lvpx -lm' >> $@
+	$(qexec)echo 'Libs: -L$${libdir} -lvpx -lm $(OPENCL_LIBS)' >> $@
 ifeq ($(HAVE_PTHREAD_H),yes)
-	$(qexec)echo 'Libs.private: -lm -lpthread' >> $@
+	$(qexec)echo 'Libs.private: -lm -lpthread $(OPENCL_LIBS)' >> $@
 else
-	$(qexec)echo 'Libs.private: -lm' >> $@
+	$(qexec)echo 'Libs.private: -lm $(OPENCL_LIBS)' >> $@
 endif
 	$(qexec)echo 'Cflags: -I$${includedir}' >> $@
 INSTALL-LIBS-yes += $(LIBSUBDIR)/pkgconfig/vpx.pc
@@ -495,7 +496,7 @@ $(foreach bin,$(LIBVPX_TEST_BINS),\
         lib$(CODEC_LIB)$(CODEC_LIB_SUF) libgtest.a ))\
     $(if $(BUILD_LIBVPX),$(eval $(call linkerxx_template,$(bin),\
         $(LIBVPX_TEST_OBJS) \
-        -L. -lvpx -lgtest $(extralibs) -lm)\
+        -L. -lvpx -lgtest $(extralibs) -lm $(OPENCL_LIBS) )\
         )))\
     $(if $(LIPO_LIBS),$(eval $(call lipo_bin_template,$(bin))))\
 

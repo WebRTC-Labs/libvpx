@@ -33,6 +33,15 @@ vp8_yv12_de_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
       vpx_free(ybf->buffer_alloc);
     }
 
+#if CONFIG_OPENCL
+    if (cl_initialized == CL_SUCCESS){
+      if (ybf->buffer_mem){
+        clReleaseMemObject(ybf->buffer_mem);
+        ybf->buffer_mem = NULL;
+      }
+    }
+#endif
+
     /* buffer_alloc isn't accessed by most functions.  Rather y_buffer,
       u_buffer and v_buffer point to buffer_alloc and are used.  Clear out
       all of this so that a freed pointer isn't inadvertently used */
@@ -98,6 +107,18 @@ int vp8_yv12_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf,
     ybf->alpha_buffer = NULL;
 
     ybf->corrupted = 0; /* assume not currupted by errors */
+
+#if CONFIG_OPENCL
+    ybf->buffer_mem = NULL;
+    if (cl_initialized == CL_SUCCESS){
+      ybf->buffer_mem = clCreateBuffer(cl_data.context,
+          CL_MEM_READ_WRITE | VP8_CL_MEM_ALLOC_TYPE,
+          ybf->frame_size * sizeof(cl_uint), NULL, NULL);
+      if (ybf->buffer_mem == NULL)
+        cl_destroy(NULL, VP8_CL_TRIED_BUT_FAILED);
+    }
+#endif
+
     return 0;
   }
   return -2;

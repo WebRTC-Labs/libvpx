@@ -199,6 +199,9 @@ endif
 INTERNAL_CFLAGS = $(addprefix -I,$(INC_PATH))
 INTERNAL_LDFLAGS += $(addprefix -L,$(LIB_PATH))
 
+ifeq ($(CONFIG_OPENCL),yes)
+OPENCL_LIBS = -L /usr/lib -lOpenCL
+endif
 
 # Expand list of selected examples to build (as specified above)
 UTILS           = $(call enabled,UTILS)
@@ -244,7 +247,7 @@ $(foreach bin,$(BINS-yes),\
     $(if $(BUILD_OBJS),$(eval $(call linker_template,$(bin),\
         $(call objs,$($(notdir $(bin:$(EXE_SFX)=)).SRCS)) \
         -l$(CODEC_LIB) $(addprefix -l,$(CODEC_EXTRA_LIBS))\
-        )))\
+        $(OPENCL_LIBS))))\
     $(if $(LIPO_OBJS),$(eval $(call lipo_bin_template,$(bin))))\
     )
 
