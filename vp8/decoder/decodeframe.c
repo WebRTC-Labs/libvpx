@@ -36,6 +36,12 @@
 
 #include <assert.h>
 #include <stdio.h>
+#if CONFIG_OPENCL
+#include "vp8/common/opencl/vp8_opencl.h"
+#include "vp8/common/opencl/blockd_cl.h"
+#include "vp8/common/opencl/dequantize_cl.h"
+#include "opencl/decodframe_cl.h"
+#endif
 
 void vp8cx_init_de_quantizer(VP8D_COMP *pbi)
 {
@@ -91,6 +97,11 @@ void vp8_mb_init_dequantizer(VP8D_COMP *pbi, MACROBLOCKD *xd)
         xd->dequant_y2[i] = pc->Y2dequant[QIndex][1];
         xd->dequant_uv[i] = pc->UVdequant[QIndex][1];
     }
+
+#if CONFIG_OPENCL && ENABLE_CL_IDCT_DEQUANT
+    //XXX: This might need revisions
+    mb_init_dequantizer_cl(xd);
+#endif
 }
 
 static void decode_macroblock(VP8D_COMP *pbi, MACROBLOCKD *xd,
@@ -120,6 +131,15 @@ static void decode_macroblock(VP8D_COMP *pbi, MACROBLOCKD *xd,
     if (xd->segmentation_enabled)
         vp8_mb_init_dequantizer(pbi, xd);
 
+
+#if CONFIG_OPENCL && (ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL)
+    //If OpenCL is enabled and initialized, use CL-specific decoder for remains
+    //of MB decoding.
+    if (cl_initialized == CL_SUCCESS){
+        vp8_decode_macroblock_cl(pbi, xd, eobtotal);
+        return;
+    }
+#endif
 
 #if CONFIG_ERROR_CONCEALMENT
 
@@ -935,9 +955,12 @@ static void init_frame(VP8D_COMP *pbi)
     }
     else
     {
-        /* To enable choice of different interploation filters */
+        /* To enable choice of different interpolation filters */
         if (!pc->use_bilinear_mc_filter)
         {
+#if CONFIG_OPENCL
+            xd->sixtap_filter = CL_FALSE;
+#endif
             xd->subpixel_predict        = vp8_sixtap_predict4x4;
             xd->subpixel_predict8x4     = vp8_sixtap_predict8x4;
             xd->subpixel_predict8x8     = vp8_sixtap_predict8x8;
@@ -945,6 +968,9 @@ static void init_frame(VP8D_COMP *pbi)
         }
         else
         {
+#if CONFIG_OPENCL
+            xd->sixtap_filter = CL_TRUE;
+#endif
             xd->subpixel_predict        = vp8_bilinear_predict4x4;
             xd->subpixel_predict8x4     = vp8_bilinear_predict8x4;
             xd->subpixel_predict8x8     = vp8_bilinear_predict8x8;
@@ -1350,6 +1376,10 @@ int vp8_decode_frame(VP8D_COMP *pbi)
         decode_mb_rows(pbi);
         corrupt_tokens |= xd->corrupted;
     }
+
+#if CONFIG_OPENCL && (ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL)
+    vp8_decode_frame_cl_finish(pbi);
+#endif
 
     /* Collect information about decoder corruption. */
     /* 1. Check first boolean decoder for errors. */

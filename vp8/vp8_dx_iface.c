@@ -24,6 +24,9 @@
 #include "decoder/error_concealment.h"
 #endif
 #include "decoder/decoderthreading.h"
+#if CONFIG_OPENCL
+#include "common/opencl/vp8_opencl.h"
+#endif
 
 #define VP8_CAP_POSTPROC (CONFIG_POSTPROC ? VPX_CODEC_CAP_POSTPROC : 0)
 #define VP8_CAP_ERROR_CONCEALMENT (CONFIG_ERROR_CONCEALMENT ? \
@@ -184,6 +187,15 @@ static vpx_codec_err_t vp8_destroy(vpx_codec_alg_priv_t *ctx)
         if (ctx->mmaps[i].dtor)
             ctx->mmaps[i].dtor(&ctx->mmaps[i]);
     }
+
+#if CONFIG_OPENCL
+    if (cl_initialized == CL_SUCCESS){
+        cl_destroy(NULL, VP8_CL_NOT_INITIALIZED);
+#if HAVE_DLOPEN
+        close_cl();
+#endif
+    }
+#endif
 
     return VPX_CODEC_OK;
 }

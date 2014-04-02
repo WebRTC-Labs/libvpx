@@ -108,7 +108,7 @@ int cl_common_init() {
   cl_uint num_found, num_devices;
   cl_device_id devices[MAX_NUM_DEVICES];
 
-  fprintf(stderr, "Miguelaaao\n");
+  fprintf(stderr, "opencl: cl_common_init\n");
 
   //Don't allow multiple CL contexts..
   if (cl_initialized != VP8_CL_NOT_INITIALIZED)

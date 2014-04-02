@@ -24,8 +24,7 @@
 #define yv12_align_addr(addr, align) \
     (void*)(((size_t)(addr) + ((align) - 1)) & (size_t)-(align))
 
-int
-vp8_yv12_de_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
+int vp8_yv12_de_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
   if (ybf) {
     // If libvpx is using frame buffer callbacks then buffer_alloc_sz must
     // not be set.
@@ -36,6 +35,7 @@ vp8_yv12_de_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
 #if CONFIG_OPENCL
     if (cl_initialized == CL_SUCCESS){
       if (ybf->buffer_mem){
+        printf("opencl: releasing buffer\n");
         clReleaseMemObject(ybf->buffer_mem);
         ybf->buffer_mem = NULL;
       }
@@ -111,6 +111,7 @@ int vp8_yv12_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf,
 #if CONFIG_OPENCL
     ybf->buffer_mem = NULL;
     if (cl_initialized == CL_SUCCESS){
+      printf("opencl: allocating buffer\n");
       ybf->buffer_mem = clCreateBuffer(cl_data.context,
           CL_MEM_READ_WRITE | VP8_CL_MEM_ALLOC_TYPE,
           ybf->frame_size * sizeof(cl_uint), NULL, NULL);

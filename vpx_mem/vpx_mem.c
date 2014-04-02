@@ -135,11 +135,13 @@ void *vpx_memalign(size_t align, size_t size) {
 }
 
 void *vpx_malloc(size_t size) {
+  printf(" vpx_malloc: %dB\n",size);
   return vpx_memalign(DEFAULT_ALIGNMENT, size);
 }
 
 void *vpx_calloc(size_t num, size_t size) {
   void *x;
+  printf(" vpx_calloc: %dB\n",size);
 
   x = vpx_memalign(DEFAULT_ALIGNMENT, num * size);
 
@@ -192,7 +194,7 @@ void *vpx_realloc(void *memblk, size_t size) {
 void vpx_free(void *memblk) {
   if (memblk) {
     void *addr = (void *)(((size_t *)memblk)[-1]);
-    printf(" Miguelao!! 0x%x\n", addr);
+    printf(" vpx_free: 0x%x\n", addr);
 #if CONFIG_MEM_MANAGER
     hmm_free(&hmm_d, addr);
 #else

@@ -14,6 +14,9 @@
 #include "loopfilter.h"
 #include "onyxc_int.h"
 #include "vpx_mem/vpx_mem.h"
+#if CONFIG_OPENCL
+#include "opencl/loopfilter_cl.h"
+#endif
 
 typedef unsigned char uc;
 
@@ -322,6 +325,12 @@ void vp8_loop_filter_frame(VP8_COMMON *cm,
 
     /* Point at base of Mb MODE_INFO list */
     const MODE_INFO *mode_info_context = cm->mi;
+#if CONFIG_OPENCL && ENABLE_CL_LOOPFILTER
+    if ( cl_initialized == CL_SUCCESS ){
+      vp8_loop_filter_frame_cl(cm,mbd);
+      return;
+    }
+#endif
     int post_y_stride = post->y_stride;
     int post_uv_stride = post->uv_stride;
 

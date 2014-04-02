@@ -37,3 +37,9 @@ VP8_DX_SRCS-yes += decoder/onyxd_if.c
 VP8_DX_SRCS-$(CONFIG_MULTITHREAD) += decoder/threading.c
 
 VP8_DX_SRCS-yes := $(filter-out $(VP8_DX_SRCS_REMOVE-yes),$(VP8_DX_SRCS-yes))
+VP8_DX_SRCS-$(CONFIG_OPENCL) += decoder/opencl/vp8_decode_cl.c
+VP8_DX_SRCS-$(CONFIG_OPENCL) += decoder/opencl/vp8_decode_cl.h
+VP8_DX_SRCS-$(CONFIG_OPENCL) += decoder/opencl/opencl_systemdependent.c
+VP8_DX_SRCS-$(CONFIG_OPENCL) += decoder/opencl/idct_blk_cl.c
+VP8_DX_SRCS-$(CONFIG_OPENCL) += decoder/opencl/decodframe_cl.c
+VP8_DX_SRCS-$(CONFIG_OPENCL) += decoder/opencl/decodframe_cl.h
