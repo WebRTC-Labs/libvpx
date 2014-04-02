@@ -36,11 +36,12 @@
 
 #include <assert.h>
 #include <stdio.h>
+
 #if CONFIG_OPENCL
 #include "vp8/common/opencl/vp8_opencl.h"
 #include "vp8/common/opencl/blockd_cl.h"
 #include "vp8/common/opencl/dequantize_cl.h"
-#include "opencl/decodframe_cl.h"
+#include "opencl/decodeframe_cl.h"
 #endif
 
 void vp8cx_init_de_quantizer(VP8D_COMP *pbi)
