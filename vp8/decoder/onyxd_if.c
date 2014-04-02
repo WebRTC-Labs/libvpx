@@ -36,6 +36,11 @@
 #if ARCH_ARM
 #include "vpx_ports/arm.h"
 #endif
+#if CONFIG_OPENCL
+#include "vp8/common/opencl/blockd_cl.h"
+#include "vp8/common/opencl/vp8_opencl.h"
+static cl_command_queue cl_commands = NULL;
+#endif
 
 extern void vp8_init_loop_filter(VP8_COMMON *cm);
 extern void vp8cx_init_de_quantizer(VP8D_COMP *pbi);
@@ -44,6 +49,11 @@ static void ref_cnt_fb (int *buf, int *idx, int new_idx);
 
 static void remove_decompressor(VP8D_COMP *pbi)
 {
+#if CONFIG_OPENCL
+    if (cl_initialized == CL_SUCCESS){
+        clReleaseCommandQueue(cl_commands);
+    }
+#endif
 #if CONFIG_ERROR_CONCEALMENT
     vp8_de_alloc_overlap_lists(pbi);
 #endif
@@ -350,6 +360,66 @@ int vp8dx_receive_compressed_data(VP8D_COMP *pbi, size_t size,
         goto decode_exit;
     }
 
+#if CONFIG_OPENCL
+    pbi->mb.cl_commands = NULL;
+    if (cl_initialized == CL_SUCCESS){
+        int err;
+        if (cl_commands == NULL){
+            //Create command queue for macroblock.
+            cl_commands = clCreateCommandQueue(cl_data.context, cl_data.device_id, 0, &err);
+            if (!cl_commands || err != CL_SUCCESS) {
+                printf("Error: Failed to create a command queue!\n");
+                cl_destroy(NULL, VP8_CL_TRIED_BUT_FAILED);
+            }
+        }
+
+        pbi->mb.cl_commands = cl_commands;
+        pbi->mb.cl_predictor_mem = NULL;
+        pbi->mb.cl_qcoeff_mem = NULL;
+        pbi->mb.cl_dqcoeff_mem = NULL;
+        pbi->mb.cl_eobs_mem = NULL;
+
+#define SET_ON_ALLOC 0
+#if SET_ON_ALLOC
+
+#if ENABLE_CL_SUBPIXEL || ENABLE_CL_IDCT_DEQUANT
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_predictor_mem, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+                    sizeof(cl_uchar)*384, pbi->mb.predictor, goto BUF_DONE, -1);
+#endif
+
+#if ENABLE_CL_IDCT_DEQUANT
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_qcoeff_mem, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+                    sizeof(cl_short)*400, pbi->mb.qcoeff, goto BUF_DONE,-1);
+
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_dqcoeff_mem, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+                    sizeof(cl_short)*400, pbi->mb.dqcoeff, goto BUF_DONE,-1);
+
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_eobs_mem, CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+                    sizeof(cl_char)*25, pbi->mb.eobs, goto BUF_DONE,-1);
+#endif
+#else
+#if ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_predictor_mem, CL_MEM_READ_WRITE,
+                    sizeof(cl_uchar)*384, NULL, goto BUF_DONE,-1);
+#endif
+
+#if ENABLE_CL_IDCT_DEQUANT
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_qcoeff_mem, CL_MEM_READ_WRITE,
+                    sizeof(cl_short)*400, NULL, goto BUF_DONE,-1);
+
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_dqcoeff_mem, CL_MEM_READ_WRITE,
+                    sizeof(cl_short)*400, NULL, goto BUF_DONE,-1);
+
+            VP8_CL_CREATE_BUF(pbi->mb.cl_commands, pbi->mb.cl_eobs_mem, CL_MEM_READ_WRITE,
+                    sizeof(cl_char) * 25, NULL, goto BUF_DONE,-1);
+#endif
+#endif
+    }
+#if ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL
+    BUF_DONE:
+#endif
+#endif  // CONFIG_OPENCL
+
     pbi->common.error.setjmp = 1;
 
     retcode = vp8_decode_frame(pbi);
@@ -368,6 +438,17 @@ int vp8dx_receive_compressed_data(VP8D_COMP *pbi, size_t size,
         pbi->common.error.error_code = VPX_CODEC_ERROR;
         goto decode_exit;
     }
+
+
+#if CONFIG_OPENCL && ENABLE_CL_SUBPIXEL
+    if (cl_initialized == CL_SUCCESS){
+        //Copy buffer_alloc to buffer_mem so YV12_BUFFER_CONFIG can be used as
+        //a reference frame (e.g. YV12..buffer_mem contains same as buffer_alloc).
+        vp8_cl_mb_prep(&pbi->mb, DST_BUF);
+
+        pbi->mb.cl_commands = NULL;
+    }
+#endif
 
     vp8_clear_system_state();
 
