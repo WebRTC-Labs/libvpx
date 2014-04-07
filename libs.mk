@@ -202,7 +202,8 @@ INSTALL-LIBS-yes += $(LIBSUBDIR)/vp8/common/opencl/loopfilter.cl
 ifeq ($(CONFIG_VP8_DECODER),yes)
 INSTALL-LIBS-yes += $(LIBSUBDIR)/vp8/decoder/opencl/dequantize_cl.cl
 endif
-OPENCL_LIBS = -L /usr/lib -lOpenCL
+OPENCL_LIBS = /System/Library/Frameworks/OpenCL.framework/OpenCL
+# -L /usr/lib -lOpenCL
 endif
 endif
 
@@ -350,11 +351,11 @@ vpx.pc: config.mk libs.mk
 	$(qexec)echo 'Version: $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)' >> $@
 	$(qexec)echo 'Requires:' >> $@
 	$(qexec)echo 'Conflicts:' >> $@
-	$(qexec)echo 'Libs: -L$${libdir} -lvpx -lm $(OPENCL_LIBS)' >> $@
+	$(qexec)echo 'Libs: -L$${libdir} -lvpx -lm ' >> $@
 ifeq ($(HAVE_PTHREAD_H),yes)
-	$(qexec)echo 'Libs.private: -lm -lpthread $(OPENCL_LIBS)' >> $@
+	$(qexec)echo 'Libs.private: -lm -lpthread' >> $@
 else
-	$(qexec)echo 'Libs.private: -lm $(OPENCL_LIBS)' >> $@
+	$(qexec)echo 'Libs.private: -lm' >> $@
 endif
 	$(qexec)echo 'Cflags: -I$${includedir}' >> $@
 INSTALL-LIBS-yes += $(LIBSUBDIR)/pkgconfig/vpx.pc

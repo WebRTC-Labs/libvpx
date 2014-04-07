@@ -2,12 +2,11 @@
 #pragma OPENCL EXTENSION cl_amd_printf : enable
 
 __constant int cospi8sqrt2minus1 = 20091;
-__constant int sinpi8sqrt2      = 35468;
+__constant int sinpi8sqrt2 = 35468;
 __constant int rounding = 0;
 
-
-static const int cospi8sqrt2minus1 = 20091;
-static const int sinpi8sqrt2      = 35468;
+//static const int cospi8sqrt2minus1 = 20091;
+//static const int sinpi8sqrt2      = 35468;
 
 __kernel void vp8_short_idct4x4llm_c(global short *input, global unsigned char *pred_ptr,
                             int pred_stride, global unsigned char *dst_ptr,
@@ -16,7 +15,7 @@ __kernel void vp8_short_idct4x4llm_c(global short *input, global unsigned char *
     int i;
     int r, c;
     int a1, b1, c1, d1;
-    short output[16];
+    global short output[16];
     global short *ip = input;
     short *op = output;
     int temp1, temp2;

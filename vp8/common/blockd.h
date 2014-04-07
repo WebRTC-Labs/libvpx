@@ -204,7 +204,7 @@ typedef struct blockd
     unsigned char  *predictor;
     short *dequant;
 
-#if CONFIG_OPENCL
+//#if CONFIG_OPENCL
     cl_command_queue cl_commands; //pointer to macroblock CL command queue
 
     cl_mem cl_predictor_mem;
@@ -215,7 +215,7 @@ typedef struct blockd
     cl_mem cl_dequant_mem; //Block-specific, not shared
 
     cl_bool sixtap_filter; //Subpixel Prediction type (true=sixtap, false=bilinear)
-#endif
+//#endif
 
     int offset;
     char *eob;
@@ -237,7 +237,7 @@ typedef struct macroblockd
     DECLARE_ALIGNED(16, short,  dequant_y2[16]);
     DECLARE_ALIGNED(16, short,  dequant_uv[16]);
 
-#if CONFIG_OPENCL
+//#if CONFIG_OPENCL
     cl_command_queue cl_commands; //Each macroblock gets its own command queue.
     cl_mem cl_predictor_mem;
     cl_mem cl_qcoeff_mem;
@@ -245,7 +245,7 @@ typedef struct macroblockd
     cl_mem cl_eobs_mem;
 
     cl_bool sixtap_filter;
-#endif
+//#endif
 
     /* 16 Y blocks, 4 U, 4 V, 1 DC 2nd order block, each with 16 entries. */
     BLOCKD block[25];

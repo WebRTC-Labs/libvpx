@@ -141,7 +141,6 @@ void *vpx_malloc(size_t size) {
 
 void *vpx_calloc(size_t num, size_t size) {
   void *x;
-  printf(" vpx_calloc: %dB\n",size);
 
   x = vpx_memalign(DEFAULT_ALIGNMENT, num * size);
 

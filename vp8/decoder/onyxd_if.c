@@ -309,7 +309,6 @@ int check_fragments_for_errors(VP8D_COMP *pbi)
         /* Nothing more to do. */
         return 0;
     }
-
     return 1;
 }
 

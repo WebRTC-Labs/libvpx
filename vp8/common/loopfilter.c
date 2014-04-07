@@ -326,6 +326,7 @@ void vp8_loop_filter_frame(VP8_COMMON *cm,
     /* Point at base of Mb MODE_INFO list */
     const MODE_INFO *mode_info_context = cm->mi;
 #if CONFIG_OPENCL && ENABLE_CL_LOOPFILTER
+    printf("Here I am\n");
     if ( cl_initialized == CL_SUCCESS ){
       vp8_loop_filter_frame_cl(cm,mbd);
       return;

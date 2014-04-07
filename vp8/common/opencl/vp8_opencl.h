@@ -35,7 +35,7 @@ extern "C" {
 #include "dynamic_cl.h"
 #endif
 
-#define ENABLE_CL_IDCT_DEQUANT 0
+#define ENABLE_CL_IDCT_DEQUANT 1
 #define ENABLE_CL_SUBPIXEL 0
 #define ENABLE_CL_LOOPFILTER 1
 #define TWO_PASS_SIXTAP 0

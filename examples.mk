@@ -200,7 +200,8 @@ INTERNAL_CFLAGS = $(addprefix -I,$(INC_PATH))
 INTERNAL_LDFLAGS += $(addprefix -L,$(LIB_PATH))
 
 ifeq ($(CONFIG_OPENCL),yes)
-OPENCL_LIBS = -L /usr/lib -lOpenCL
+OPENCL_LIBS = /System/Library/Frameworks/OpenCL.framework/OpenCL
+#-L /usr/lib -lOpenCL
 endif
 
 # Expand list of selected examples to build (as specified above)

@@ -65,8 +65,8 @@ void mb_init_dequantizer_cl(VP8D_COMP *pbi, MACROBLOCKD *xd)
 #define RTCD_VTABLE(x) NULL
 #endif
 
-static void vp8_decode_macroblock_cl(VP8D_COMP *pbi, MACROBLOCKD *xd,
-                                     unsigned int mb_idx)
+void vp8_decode_macroblock_cl(VP8D_COMP *pbi, MACROBLOCKD *xd,
+                              unsigned int mb_idx)
 {
     MB_PREDICTION_MODE mode;
     int i;

@@ -18,9 +18,9 @@ extern "C" {
 #include "vpx/vpx_frame_buffer.h"
 #include "vpx/vpx_integer.h"
 
-#if CONFIG_OPENCL
+//#if CONFIG_OPENCL
 #include "vp8/common/opencl/vp8_opencl.h"
-#endif
+//#endif
 
 #define VP8BORDERINPIXELS           32
 #define VP9INNERBORDERINPIXELS      96
@@ -59,9 +59,9 @@ typedef struct yv12_buffer_config {
   int corrupted;
   int flags;
 
-#if CONFIG_OPENCL
+//#if CONFIG_OPENCL
   cl_mem buffer_mem;
-#endif
+//#endif
 } YV12_BUFFER_CONFIG;
 
 int vp8_yv12_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf,
