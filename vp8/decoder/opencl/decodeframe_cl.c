@@ -68,7 +68,7 @@ void mb_init_dequantizer_cl(VP8D_COMP *pbi, MACROBLOCKD *xd)
 void vp8_decode_macroblock_cl(VP8D_COMP *pbi, MACROBLOCKD *xd,
                               unsigned int mb_idx)
 {
-    MB_PREDICTION_MODE mode;
+    MB_PREDICTION_MODE mode = DC_PRED;
     int i;
 #if CONFIG_ERROR_CONCEALMENT
     int corruption_detected = 0;

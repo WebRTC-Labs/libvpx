@@ -27,8 +27,8 @@ void cl_destroy_idct(){
     cl_data.idct_program = NULL;
 
     VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_1_kernel);
-    VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_1st_pass_kernel);
-    VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_2nd_pass_kernel);
+    //VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_1st_pass_kernel);
+    //VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_inv_walsh4x4_2nd_pass_kernel);
     VP8_CL_RELEASE_KERNEL(cl_data.vp8_dc_only_idct_add_kernel);
     //VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_idct4x4llm_1_kernel);
     //VP8_CL_RELEASE_KERNEL(cl_data.vp8_short_idct4x4llm_kernel);
@@ -44,10 +44,17 @@ int cl_init_idct() {
         return VP8_CL_TRIED_BUT_FAILED;
 
     // Create the compute kernel in the program we wish to run
-    VP8_CL_CREATE_KERNEL(cl_data,idct_program,vp8_short_inv_walsh4x4_1_kernel,"vp8_short_inv_walsh4x4_1_kernel");
-    VP8_CL_CREATE_KERNEL(cl_data,idct_program,vp8_short_inv_walsh4x4_1st_pass_kernel,"vp8_short_inv_walsh4x4_1st_pass_kernel");
-    VP8_CL_CREATE_KERNEL(cl_data,idct_program,vp8_short_inv_walsh4x4_2nd_pass_kernel,"vp8_short_inv_walsh4x4_2nd_pass_kernel");
-    VP8_CL_CREATE_KERNEL(cl_data,idct_program,vp8_dc_only_idct_add_kernel,"vp8_dc_only_idct_add_kernel");
+    VP8_CL_CREATE_KERNEL(cl_data, idct_program, vp8_short_inv_walsh4x4_1_kernel,
+        "vp8_short_inv_walsh4x4_1_c");
+    //VP8_CL_CREATE_KERNEL(cl_data, idct_program,
+    //                     vp8_short_inv_walsh4x4_1st_pass_kernel,
+    //                     "vp8_short_inv_walsh4x4_1st_pass_kernel");
+    //VP8_CL_CREATE_KERNEL(cl_data, idct_program,
+    //                     vp8_short_inv_walsh4x4_2nd_pass_kernel,
+    //                     "vp8_short_inv_walsh4x4_2nd_pass_kernel");
+    VP8_CL_CREATE_KERNEL(cl_data, idct_program,
+                         vp8_dc_only_idct_add_kernel,
+                         "vp8_dc_only_idct_add_c");
 
     ////idct4x4llm kernels are only useful for the encoder
     //VP8_CL_CREATE_KERNEL(cl_data,idct_program,vp8_short_idct4x4llm_1_kernel,"vp8_short_idct4x4llm_1_kernel");

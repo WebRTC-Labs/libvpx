@@ -15,8 +15,9 @@ __kernel void vp8_short_idct4x4llm_c(global short *input, global unsigned char *
     int i;
     int r, c;
     int a1, b1, c1, d1;
-    global short output[16];
+    short output[16];
     global short *ip = input;
+    short *ip2;
     short *op = output;
     int temp1, temp2;
     int shortpitch = 4;
@@ -44,20 +45,20 @@ __kernel void vp8_short_idct4x4llm_c(global short *input, global unsigned char *
         op++;
     }
 
-    ip = output;
+    ip2 = output;
     op = output;
 
     for (i = 0; i < 4; i++)
     {
-        a1 = ip[0] + ip[2];
-        b1 = ip[0] - ip[2];
+        a1 = ip2[0] + ip2[2];
+        b1 = ip2[0] - ip2[2];
 
-        temp1 = (ip[1] * sinpi8sqrt2) >> 16;
-        temp2 = ip[3] + ((ip[3] * cospi8sqrt2minus1) >> 16);
+        temp1 = (ip2[1] * sinpi8sqrt2) >> 16;
+        temp2 = ip2[3] + ((ip2[3] * cospi8sqrt2minus1) >> 16);
         c1 = temp1 - temp2;
 
-        temp1 = ip[1] + ((ip[1] * cospi8sqrt2minus1) >> 16);
-        temp2 = (ip[3] * sinpi8sqrt2) >> 16;
+        temp1 = ip2[1] + ((ip2[1] * cospi8sqrt2minus1) >> 16);
+        temp2 = (ip2[3] * sinpi8sqrt2) >> 16;
         d1 = temp1 + temp2;
 
 
@@ -67,16 +68,16 @@ __kernel void vp8_short_idct4x4llm_c(global short *input, global unsigned char *
         op[1] = (b1 + c1 + 4) >> 3;
         op[2] = (b1 - c1 + 4) >> 3;
 
-        ip += shortpitch;
+        ip2 += shortpitch;
         op += shortpitch;
     }
 
-    ip = output;
+    ip2 = output;
     for (r = 0; r < 4; r++)
     {
         for (c = 0; c < 4; c++)
         {
-            int a = ip[c] + pred_ptr[c] ;
+            int a = ip2[c] + pred_ptr[c] ;
 
             if (a < 0)
                 a = 0;
@@ -86,7 +87,7 @@ __kernel void vp8_short_idct4x4llm_c(global short *input, global unsigned char *
 
             dst_ptr[c] = (unsigned char) a ;
         }
-        ip += 4;
+        ip2 += 4;
         dst_ptr += dst_stride;
         pred_ptr += pred_stride;
     }
@@ -125,8 +126,8 @@ __kernel void vp8_short_inv_walsh4x4_c(global short *input, global short *output
     int i;
     int a1, b1, c1, d1;
     int a2, b2, c2, d2;
-    short *ip = input;
-    short *op = output;
+    global short *ip = input;
+    global short *op = output;
 
     for (i = 0; i < 4; i++)
     {
@@ -172,7 +173,7 @@ __kernel void vp8_short_inv_walsh4x4_1_c(global short *input, global short *outp
 {
     int i;
     int a1;
-    short *op = output;
+    global short *op = output;
 
     a1 = ((input[0] + 3) >> 3);
 
