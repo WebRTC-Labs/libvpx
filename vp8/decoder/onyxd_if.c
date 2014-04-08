@@ -438,6 +438,12 @@ int vp8dx_receive_compressed_data(VP8D_COMP *pbi, size_t size,
         goto decode_exit;
     }
 
+#ifdef CONFIG_OPENCL
+    if(cm->filter_level) {
+        /* Apply the loop filter if appropriate. */
+        vp8_loop_filter_frame(cm, &pbi->mb, pbi->mb.frame_type);
+    }
+#endif
 
 #if CONFIG_OPENCL && ENABLE_CL_SUBPIXEL
     if (cl_initialized == CL_SUCCESS){

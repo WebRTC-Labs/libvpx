@@ -46,12 +46,6 @@ int cl_init_idct() {
     // Create the compute kernel in the program we wish to run
     VP8_CL_CREATE_KERNEL(cl_data, idct_program, vp8_short_inv_walsh4x4_1_kernel,
         "vp8_short_inv_walsh4x4_1_c");
-    //VP8_CL_CREATE_KERNEL(cl_data, idct_program,
-    //                     vp8_short_inv_walsh4x4_1st_pass_kernel,
-    //                     "vp8_short_inv_walsh4x4_1st_pass_kernel");
-    //VP8_CL_CREATE_KERNEL(cl_data, idct_program,
-    //                     vp8_short_inv_walsh4x4_2nd_pass_kernel,
-    //                     "vp8_short_inv_walsh4x4_2nd_pass_kernel");
     VP8_CL_CREATE_KERNEL(cl_data, idct_program,
                          vp8_dc_only_idct_add_kernel,
                          "vp8_dc_only_idct_add_c");

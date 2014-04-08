@@ -691,6 +691,9 @@ static void decode_mb_rows(VP8D_COMP *pbi)
 
         if(pc->filter_level)
         {
+#ifdef CONFIG_OPENCL
+            //vp8_loop_filter_frame(&pbi->common, &pbi->mb, pbi->mb.frame_type);
+#else
             if(mb_row > 0)
             {
                 if (pc->filter_type == NORMAL_LOOPFILTER)
@@ -719,6 +722,7 @@ static void decode_mb_rows(VP8D_COMP *pbi)
                 lf_mic += pc->mb_cols;
                 lf_mic++;         /* Skip border mb */
             }
+#endif
         }
         else
         {
