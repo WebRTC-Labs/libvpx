@@ -24,14 +24,23 @@
 #define yv12_align_addr(addr, align) \
     (void*)(((size_t)(addr) + ((align) - 1)) & (size_t)-(align))
 
-int
-vp8_yv12_de_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
+int vp8_yv12_de_alloc_frame_buffer(YV12_BUFFER_CONFIG *ybf) {
   if (ybf) {
     // If libvpx is using frame buffer callbacks then buffer_alloc_sz must
     // not be set.
     if (ybf->buffer_alloc_sz > 0) {
       vpx_free(ybf->buffer_alloc);
     }
+
+#if CONFIG_OPENCL
+    if (cl_initialized == CL_SUCCESS){
+      if (ybf->buffer_mem){
+        printf("opencl: releasing buffer\n");
+        clReleaseMemObject(ybf->buffer_mem);
+        ybf->buffer_mem = NULL;
+      }
+    }
+#endif
 
     /* buffer_alloc isn't accessed by most functions.  Rather y_buffer,
       u_buffer and v_buffer point to buffer_alloc and are used.  Clear out
@@ -98,6 +107,19 @@ int vp8_yv12_realloc_frame_buffer(YV12_BUFFER_CONFIG *ybf,
     ybf->alpha_buffer = NULL;
 
     ybf->corrupted = 0; /* assume not currupted by errors */
+
+#if CONFIG_OPENCL
+    ybf->buffer_mem = NULL;
+    if (cl_initialized == CL_SUCCESS){
+      printf("opencl: allocating buffer\n");
+      ybf->buffer_mem = clCreateBuffer(cl_data.context,
+          CL_MEM_READ_WRITE | VP8_CL_MEM_ALLOC_TYPE,
+          ybf->frame_size * sizeof(cl_uint), NULL, NULL);
+      if (ybf->buffer_mem == NULL)
+        cl_destroy(NULL, VP8_CL_TRIED_BUT_FAILED);
+    }
+#endif
+
     return 0;
   }
   return -2;
