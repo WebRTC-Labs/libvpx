@@ -46,14 +46,6 @@ void cl_destroy(cl_command_queue cq, int new_status) {
   if (cq != NULL)
     VP8_CL_FINISH(cq);
 
-#if ENABLE_CL_SUBPIXEL
-    //Release the objects that we've allocated on the GPU
-  cl_destroy_filter();
-#endif
-
-#if ENABLE_CL_IDCT_DEQUANT
-  cl_destroy_idct();
-
 #if CONFIG_VP8_DECODER
   if (cl_data.cl_decode_initialized == CL_SUCCESS)
     cl_decode_destroy();
@@ -158,38 +150,21 @@ int cl_common_init() {
     printf("Found %d devices:\n", num_devices);
     cl_data.device_id = NULL;
     for( dev = 0; dev < num_devices; dev++ ){
-#if ENABLE_CL_IDCT_DEQUANT == 1 || ENABLE_CL_SUBPIXEL == 1
-      char ext[2048];
+      char* value;
+      size_t valueSize;
 
-      // Get info for this device.
-      err = clGetDeviceInfo(devices[dev], CL_DEVICE_EXTENSIONS,
-        sizeof(ext),ext,NULL);
-      VP8_CL_CHECK_SUCCESS(NULL,err != CL_SUCCESS,
-        "Error retrieving device extension list",continue, 0);
+      clGetDeviceInfo(devices[dev], CL_DEVICE_NAME, 0, NULL, &valueSize);
+      value = (char*) malloc(valueSize);
+      clGetDeviceInfo(devices[dev], CL_DEVICE_NAME, valueSize, value, NULL);
+      printf("%d. Device: %s\n", dev, value);
+      free(value);
 
-      // printf("Device %d supports: %s\n",dev,ext);
-      // The prediction/IDCT kernels in VP8 require byte-addressable stores,
-      // which is an extension. It's required in OpenCL 1.1, but not all devices
-      // support that version.
-      if (strstr(ext,"cl_khr_byte_addressable_store")){
-#endif
-        char* value;
-        size_t valueSize;
-
-        clGetDeviceInfo(devices[dev], CL_DEVICE_NAME, 0, NULL, &valueSize);
-        value = (char*) malloc(valueSize);
-        clGetDeviceInfo(devices[dev], CL_DEVICE_NAME, valueSize, value, NULL);
-        printf("%d. Device: %s\n", dev, value);
-        free(value);
-
-        cl_data.device_id = devices[dev];
-        cl_data.device_type = device_type(devices[dev]);
-        // Prefer using a GPU.
-        if ( cl_data.device_type == CL_DEVICE_TYPE_GPU ){
-          printf("Device %d is a GPU, stop searching.\n",dev);
-          break;
-        }
-#if ENABLE_CL_IDCT_DEQUANT == 1 || ENABLE_CL_SUBPIXEL == 1
+      cl_data.device_id = devices[dev];
+      cl_data.device_type = device_type(devices[dev]);
+      // Prefer using a GPU.
+      if ( cl_data.device_type == CL_DEVICE_TYPE_GPU ){
+        printf("Device %d is a GPU, stop searching.\n",dev);
+        break;
       }
 #endif
     }
@@ -217,18 +192,6 @@ int cl_common_init() {
   cl_data.filter_program = NULL;
   cl_data.idct_program = NULL;
   cl_data.loop_filter_program = NULL;
-
-#if ENABLE_CL_SUBPIXEL
-  err = cl_init_filter();
-  if (err != CL_SUCCESS)
-    return err;
-#endif
-
-#if ENABLE_CL_IDCT_DEQUANT
-  err = cl_init_idct();
-  if (err != CL_SUCCESS)
-    return err;
-#endif
 
 #if ENABLE_CL_LOOPFILTER
   err = cl_init_loop_filter();

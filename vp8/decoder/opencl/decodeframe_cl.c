@@ -140,16 +140,7 @@ static void vp8_decode_macroblock_cl(VP8D_COMP *pbi, MACROBLOCKD *xd,
     }
     else
     {
-#if ENABLE_CL_SUBPIXEL
-        vp8_build_inter_predictors_mb_cl(xd);
-#else
-        vp8_build_inter_predictors_mb(xd);
-#endif
-
-#if (1 || !ENABLE_CL_IDCT_DEQUANT)
-        //Wait for inter-predict if dequant/IDCT is being done on the CPU
-        VP8_CL_FINISH(xd->cl_commands);
-#endif
+      vp8_build_inter_predictors_mb(xd);
     }
 
 
@@ -211,9 +202,6 @@ void vp8_decode_frame_cl_finish(VP8D_COMP *pbi){
 
     //If using OpenCL, free all of the GPU buffers we've allocated.
     if (cl_initialized == CL_SUCCESS){
-#if ENABLE_CL_IDCT_DEQUANT
-        int i;
-#endif
 
         //Wait for stuff to finish, just in case
         VP8_CL_FINISH(pbi->mb.cl_commands);
@@ -225,27 +213,6 @@ void vp8_decode_frame_cl_finish(VP8D_COMP *pbi){
         clReleaseCommandQueue(pbi->mb.block[0].cl_commands);
         clReleaseCommandQueue(pbi->mb.block[16].cl_commands);
         clReleaseCommandQueue(pbi->mb.block[20].cl_commands);
-#endif
-
-#if ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL
-        //Free Predictor CL buffer
-        if (pbi->mb.cl_predictor_mem != NULL)
-            clReleaseMemObject(pbi->mb.cl_predictor_mem);
-#endif
-
-#if ENABLE_CL_IDCT_DEQUANT
-        //Free other CL Block/MBlock buffers
-        if (pbi->mb.cl_qcoeff_mem != NULL)
-            clReleaseMemObject(pbi->mb.cl_qcoeff_mem);
-        if (pbi->mb.cl_dqcoeff_mem != NULL)
-            clReleaseMemObject(pbi->mb.cl_dqcoeff_mem);
-        if (pbi->mb.cl_eobs_mem != NULL)
-            clReleaseMemObject(pbi->mb.cl_eobs_mem);
-
-        for (i = 0; i < 25; i++){
-            clReleaseMemObject(pbi->mb.block[i].cl_dequant_mem);
-            pbi->mb.block[i].cl_dequant_mem = NULL;
-        }
 #endif
     }
 }
