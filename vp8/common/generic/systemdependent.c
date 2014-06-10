@@ -88,7 +88,7 @@ void vp8_clear_system_state_c() {};
 
 void vp8_machine_specific_config(VP8_COMMON *ctx)
 {
-#if CONFIG_OPENCL && (ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL || ENABLE_CL_LOOPFILTER)
+#if CONFIG_OPENCL && ENABLE_CL_LOOPFILTER
     vp8_arch_opencl_common_init(ctx);
 #endif
 

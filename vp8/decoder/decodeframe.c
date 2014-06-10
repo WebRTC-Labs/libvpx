@@ -99,11 +99,6 @@ void vp8_mb_init_dequantizer(VP8D_COMP *pbi, MACROBLOCKD *xd)
         xd->dequant_y2[i] = pc->Y2dequant[QIndex][1];
         xd->dequant_uv[i] = pc->UVdequant[QIndex][1];
     }
-
-#if CONFIG_OPENCL && ENABLE_CL_IDCT_DEQUANT
-    //XXX: This might need revisions
-    mb_init_dequantizer_cl(xd);
-#endif
 }
 
 static void decode_macroblock(VP8D_COMP *pbi, MACROBLOCKD *xd,
@@ -132,16 +127,6 @@ static void decode_macroblock(VP8D_COMP *pbi, MACROBLOCKD *xd,
 
     if (xd->segmentation_enabled)
         vp8_mb_init_dequantizer(pbi, xd);
-
-
-#if CONFIG_OPENCL && (ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL)
-    //If OpenCL is enabled and initialized, use CL-specific decoder for remains
-    //of MB decoding.
-    if (cl_initialized == CL_SUCCESS){
-        vp8_decode_macroblock_cl(pbi, xd, eobtotal);
-        return;
-    }
-#endif
 
 #if CONFIG_ERROR_CONCEALMENT
 
@@ -1385,10 +1370,6 @@ int vp8_decode_frame(VP8D_COMP *pbi)
         decode_mb_rows(pbi);
         corrupt_tokens |= xd->corrupted;
     }
-
-#if CONFIG_OPENCL && (ENABLE_CL_IDCT_DEQUANT || ENABLE_CL_SUBPIXEL)
-    vp8_decode_frame_cl_finish(pbi);
-#endif
 
     /* Collect information about decoder corruption. */
     /* 1. Check first boolean decoder for errors. */
