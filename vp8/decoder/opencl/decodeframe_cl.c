@@ -202,17 +202,7 @@ void vp8_decode_frame_cl_finish(VP8D_COMP *pbi){
 
     //If using OpenCL, free all of the GPU buffers we've allocated.
     if (cl_initialized == CL_SUCCESS){
-
-        //Wait for stuff to finish, just in case
-        VP8_CL_FINISH(pbi->mb.cl_commands);
-
-#if !ONE_CQ_PER_MB
-        VP8_CL_FINISH(pbi->mb.block[0].cl_commands);
-        VP8_CL_FINISH(pbi->mb.block[16].cl_commands);
-        VP8_CL_FINISH(pbi->mb.block[20].cl_commands);
-        clReleaseCommandQueue(pbi->mb.block[0].cl_commands);
-        clReleaseCommandQueue(pbi->mb.block[16].cl_commands);
-        clReleaseCommandQueue(pbi->mb.block[20].cl_commands);
-#endif
+      //Wait for stuff to finish, just in case
+      VP8_CL_FINISH(pbi->mb.cl_commands);
     }
 }

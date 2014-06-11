@@ -51,7 +51,6 @@ void cl_destroy(cl_command_queue cq, int new_status) {
     cl_decode_destroy();
 #endif
 
-#endif
 #if ENABLE_CL_LOOPFILTER
   cl_destroy_loop_filter();
 #endif
@@ -166,7 +165,6 @@ int cl_common_init() {
         printf("Device %d is a GPU, stop searching.\n",dev);
         break;
       }
-#endif
     }
 
     // If we've found a usable GPU, stop looking.

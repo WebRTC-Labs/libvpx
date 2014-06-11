@@ -46,8 +46,6 @@ extern "C" {
 #define MEM_COPY_KERNEL 1 //0 = clEnqueueCopyBufferRect, 1 = kernel
 #endif
 
-#define ONE_CQ_PER_MB 1 //Value of 0 is racey... still experimental.
-
 extern int cl_common_init();
 extern void cl_destroy(cl_command_queue cq, int new_status);
 extern int cl_load_program(cl_program *prog_ref, const char *file_name, const char *opts);

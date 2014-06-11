@@ -235,10 +235,6 @@ void vp8_build_inter_predictors_mbuv_cl(MACROBLOCKD *x)
 
     vp8_cl_mb_prep(x, PREDICTOR|PRE_BUF);
 
-#if !ONE_CQ_PER_MB
-    VP8_CL_FINISH(x->cl_commands);
-#endif
-
     if (x->mode_info_context->mbmi.ref_frame != INTRA_FRAME &&
         x->mode_info_context->mbmi.mode != SPLITMV)
     {
@@ -298,12 +294,6 @@ void vp8_build_inter_predictors_mbuv_cl(MACROBLOCKD *x)
         }
     }
 
-#if !ONE_CQ_PER_MB
-    VP8_CL_FINISH(x->block[0].cl_commands);
-    VP8_CL_FINISH(x->block[16].cl_commands);
-    VP8_CL_FINISH(x->block[20].cl_commands);
-#endif
-
     vp8_cl_mb_finish(x, PREDICTOR);
 }
 
@@ -311,10 +301,6 @@ void vp8_build_inter_predictors_mb_cl(MACROBLOCKD *x)
 {
     //If CL is running in encoder, need to call following before proceeding.
     //vp8_cl_mb_prep(x, PRE_BUF);
-
-#if !ONE_CQ_PER_MB
-    VP8_CL_FINISH(x->cl_commands);
-#endif
 
     if (x->mode_info_context->mbmi.ref_frame != INTRA_FRAME &&
         x->mode_info_context->mbmi.mode != SPLITMV)
@@ -419,12 +405,6 @@ void vp8_build_inter_predictors_mb_cl(MACROBLOCKD *x)
             }
         }
     }
-
-#if !ONE_CQ_PER_MB
-    VP8_CL_FINISH(x->block[0].cl_commands);
-    VP8_CL_FINISH(x->block[16].cl_commands);
-    VP8_CL_FINISH(x->block[20].cl_commands);
-#endif
 
     vp8_cl_mb_finish(x, PREDICTOR);
 }

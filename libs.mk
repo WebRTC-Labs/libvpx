@@ -202,7 +202,8 @@ INSTALL-LIBS-yes += $(LIBSUBDIR)/vp8/common/opencl/loopfilter.cl
 ifeq ($(CONFIG_VP8_DECODER),yes)
 INSTALL-LIBS-yes += $(LIBSUBDIR)/vp8/decoder/opencl/dequantize_cl.cl
 endif
-OPENCL_LIBS = -L /usr/lib -lOpenCL
+OPENCL_LIBS = /System/Library/Frameworks/OpenCL.framework/OpenCL
+#-L /usr/lib -lOpenCL
 endif
 endif
 
